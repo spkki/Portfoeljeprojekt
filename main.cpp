@@ -1,8 +1,9 @@
-#include <iostream>
-#include "hero.h"
 #include "enemy.h"
+#include "hero.h"
+#include <iostream>
 
-int main() {
+int main()
+{
     Hero Test("Name Test");
     Test.getName();
     Test.getXp();
@@ -14,5 +15,6 @@ int main() {
     Test.gainXp(1000);
     Test.getXp();
     Test.getLevel();
+    //test
     return 0;
 }
