@@ -5,20 +5,14 @@
 #pragma once
 #include "hero.h"
 
-class Enemy
+class Enemy: public Hero
 {
 private:
-    std::string _name;
-    int _hp;
     int _damage;
-    int _xp;
+    int _xpdrop;
 
 public:
-    Enemy(std::string name, int hp, int damage, int xp)
+    Enemy(std::string name, int hp, int damage, int xpdrop): Hero(name, 0, 0, hp), _damage(damage), _xpdrop(xpdrop)
     {
-        _name = name;
-        _hp = hp;
-        _damage = damage;
-        _xp = xp;
     }
 };

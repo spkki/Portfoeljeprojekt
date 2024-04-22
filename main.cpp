@@ -15,6 +15,9 @@ int main()
     Test.gainXp(1000);
     Test.getXp();
     Test.getLevel();
+
+    Enemy Orc("Orc1", 10, 1, 1);
+    Orc.getXp();
     //test
     return 0;
 }
