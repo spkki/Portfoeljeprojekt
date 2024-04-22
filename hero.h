@@ -12,7 +12,7 @@ private:
     int _hp;
     int _strength;
 public:
-    Hero(std::string name, int xp, int level, int hp, int strength){
+    Hero(std::string name, int xp = 0, int level = 1, int hp = 10, int strength = 2){
         _name = name;
         _xp = xp;
         _level = level;
@@ -77,6 +77,22 @@ public:
 
     void dealDamage(int damage){
         _strength = damage;
+    }
+
+    void gainXp(int xpGain){
+        _xp += xpGain;
+        if (_xp >= 1000 * _level){
+            levelUp();
+        }
+    }
+
+    void levelUp(){
+        _xp -= 1000*_level;
+        _hp += 2;
+        _strength += 1;
+        _level++;
+        std::cout << "You have leveled up. You are now level: " << _level << std::endl; //Add so it shows how much xp are required for next level.
+
     }
 
 };
