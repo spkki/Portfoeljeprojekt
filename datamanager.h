@@ -12,7 +12,7 @@
 
 bool openDatabase(QSqlDatabase& database){ //Open database function
     database = QSqlDatabase::addDatabase("QSQLITE");
-    database.setDatabaseName("/home/spkki/workspace/software-udvikling/portfolio/Portfoeljeprojekt/database.db;");
+    database.setDatabaseName("/home/spkki/workspace/software-udvikling/portfolio/Portfoeljeprojekt/database");
 
     if (!database.open()){
         qWarning() << "Could not open database:" << database.lastError().text();

@@ -3,7 +3,14 @@
 //
 
 #pragma once
+#include "qsqlquery.h"
 #include <iostream>
+#include <QCoreApplication>
+#include <QDebug>
+#include <QSqlDatabase>
+#include <QSqlError>
+#include <QSqlQuery>
+#include <QString>
 
 class Hero
 {
@@ -15,7 +22,7 @@ private:
     int _strength;
 
 public:
-    Hero(std::string name, int xp = 0, int level = 1, int hp = 10, int strength = 2)
+    Hero(std::string name = "", int xp = 0, int level = 1, int hp = 10, int strength = 2)
     {
         _name = name;
         _xp = xp;
@@ -92,5 +99,53 @@ public:
         _level++;
         std::cout << "You have leveled up. You are now level: " << _level
                   << std::endl; //Add so it shows how much xp are required for next level.
+    }
+
+    void loadHero(std::string heroname){
+        QString _heroname = QString::fromStdString(heroname);
+        QSqlQuery query;
+        query.prepare("SELECT * FROM hero WHERE name = :name");
+        query.bindValue(":name", _heroname);
+        if(query.exec() && query.next()){
+            _name = query.value("name").toString().toStdString();
+            _xp = query.value("xp").toInt();
+            _level = query.value("level").toInt();
+            _hp = query.value("hp").toInt();
+            _strength = query.value("strength").toInt();
+
+            std::cout << "Hero loaded succesfully" << std::endl;
+        } else {
+            std::cout << "Hero could not load" << std::endl;
+        }
+    }
+
+    void saveHero(){
+        QString name = QString::fromStdString(_name);
+
+        QSqlQuery query;
+        query.prepare("INSERT INTO hero (name, xp, level, hp, strength) VALUES(:name, :xp, :level, :hp, :strength)");
+        query.bindValue(":name", name);
+        query.bindValue(":xp", _xp);
+        query.bindValue(":level", _level);
+        query.bindValue(":hp", _hp);
+        query.bindValue(":strength", _strength);
+
+        if (!query.exec()){
+            qDebug() << "Falied to save character: " << query.lastError().text();
+        }
+        qDebug() << "Character saved succesfully!";
+    }
+
+    void deleteHero(){
+        QString name = QString::fromStdString(_name);
+
+        QSqlQuery query;
+        query.prepare("DELETE FROM hero WHERE name = :name");
+        query.bindValue(":name", name);
+
+        if (!query.exec()){
+            qDebug() << "Failed to delete character: " << query.lastError().text();
+        }
+        qDebug() << "Character deleted succesfully!";
     }
 };
