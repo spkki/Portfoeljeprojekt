@@ -8,7 +8,8 @@ find_package(Qt5 REQUIRED COMPONENTS Core Quick Sql)
 add_executable(Portfoeljeprojekt main.cpp
         hero.h
         enemy.h
-        datamanager.h)
+        datamanager.h
+        mainMenu.h)
 
 target_link_libraries(Portfoeljeprojekt Qt5::Core Qt5::Quick Qt5::Sql)
 
