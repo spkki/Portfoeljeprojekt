@@ -1,7 +1,7 @@
 #include "enemy.h"
 #include "hero.h"
 #include "datamanager.h"
-#include "mainMenu.h"
+#include "game.h"
 #include <iostream>
 #include <QString>
 
@@ -9,6 +9,7 @@ int main()
 {
 
     bool runGame = true;
+    Hero currentHero;
 
     while (runGame) {
         mainMenu();
@@ -24,7 +25,7 @@ int main()
             loadExistingCharacter();
             break;
         case 3:
-            std::cout << "Exiting game..." << std::endl;
+            saveAndExit(currentHero);
             runGame = false;
             break;
         default:

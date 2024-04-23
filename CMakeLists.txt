@@ -9,7 +9,7 @@ add_executable(Portfoeljeprojekt main.cpp
         hero.h
         enemy.h
         datamanager.h
-        mainMenu.h)
+        game.h)
 
 target_link_libraries(Portfoeljeprojekt Qt5::Core Qt5::Quick Qt5::Sql)
 

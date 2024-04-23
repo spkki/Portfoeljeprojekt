@@ -35,7 +35,6 @@ public:
 
     std::string getName()
     {
-        std::cout << "Name: " << _name << std::endl;
         return _name;
     };
 
