@@ -39,18 +39,38 @@ public:
     }
 
     void loadExistingCharacter(){
-        std::string name;
-        std::cout << "Input name of character to be loaded: ";
-        std::cin >> name;
-
         QSqlDatabase database;
         openDatabase(database);
 
-        currentHero = Hero(name);
-        currentHero.loadHero(name);
-        currentHero.getStats(name);
-        std::cout << "You are now playing as: " << currentHero.getName() << std::endl;
+        QSqlQuery query;
+        query.prepare("SELECT name, level, xp, hp, strength FROM hero");
+        if(query.exec()){
+            std::cout << "Avaliable characters: " << std::endl;
+            int count = 1;
+            while(query.next()){
+                std::string name = query.value(0).toString().toStdString();
+                int level = query.value(1).toInt();
+                int xp = query.value(2).toInt();
+                int hp = query.value(3).toInt();
+                int strength = query.value(4).toInt();
+                std::cout << count << ". " << name << "(Level: " << level << ", XP: " << xp << ", HP: " << hp << ", Strength: " << strength << ")" << std::endl;
+                count++;
+            }
+            int choice;
+            std::cout << "Which character do you want to load: ";
+            std::cin >> choice;
 
+            query.seek(-1);
+            for (int i = 0; i < choice && query.next(); i++) {}
+
+            std::string selectedName = query.value(0).toString().toStdString();
+            currentHero = Hero(selectedName);
+            currentHero.loadHero(selectedName);
+            currentHero.getStats(selectedName);
+            std::cout << "You are now playing as: " << currentHero.getName() << std::endl;
+        } else {
+            std::cout << "Failed to retieve character data from database." << std::endl;
+        }
         closeDatabase(database);
     }
 
@@ -78,7 +98,7 @@ public:
             } else if(enemy.getHp() <= 0){
                 std::cout << enemy.getName() << " has died " << std::endl;
                 currentHero.gainXp(enemy.getXpDrop());
-                std::cout << "You gained " << enemy.getXpDrop() << "xp" << std::endl;
+                std::cout << currentHero.getName() << " gained " << enemy.getXpDrop() << "xp" << std::endl;
                 currentHero.heal();
                 fightActive = false;
             }
@@ -88,69 +108,24 @@ public:
     bool fightMenu(){
         bool runGame = true;
 
-        QSqlDatabase database; //Open and find from database
-        openDatabase(database);
-        std::cout << "Choose a monster: " << std::endl;
-        std::cout << "1. Hest" << std::endl;
-        std::cout << "2. Weak Goblin" << std::endl;
-        std::cout << "3. Strong Goblin" << std::endl;
-        std::cout << "4. Stronger Goblin" << std::endl;
-        std::cout << "5. Den stærkeste Goblin" << std::endl;
-        std::cout << "6. Abe Kongen" << std::endl;
-        std::cout << "7. Enhjørning" << std::endl;
-        std::cout << "8. Drage" << std::endl;
-        std::cout << "0. Exit" << std::endl;
+        QSqlDatabase database;
+        openDatabase (database);
 
-        int choice = getMenuChoice();
-        switch (choice) {
-        case 1:
-            choosenEnemy.loadEnemy("Hest");
-            battleMethod(choosenEnemy);
+        std::cout << "Choose a monster" << std::endl;
+
+        Enemy enemy;
+        enemy.loadEnemy("");
+
+        std::string enemyName = enemy.getName();
+
+        if (!enemyName.empty()){
+            battleMethod(enemy);
             runGame = !gameMenu();
-            break;
-        case 2:
-            choosenEnemy.loadEnemy("Weak Goblin");
-            battleMethod(choosenEnemy);
-            runGame = !gameMenu();
-            break;
-        case 3:
-            choosenEnemy.loadEnemy("Strong Goblin");
-            battleMethod(choosenEnemy);
-            runGame = !gameMenu();
-            break;
-        case 4:
-            choosenEnemy.loadEnemy("Stronger Goblin");
-            battleMethod(choosenEnemy);
-            runGame = !gameMenu();
-            break;
-        case 5:
-            choosenEnemy.loadEnemy("Den stærkeste Goblin");
-            battleMethod(choosenEnemy);
-            runGame = !gameMenu();
-            break;
-        case 6:
-            choosenEnemy.loadEnemy("Abe Kongen");
-            battleMethod(choosenEnemy);
-            runGame = !gameMenu();
-            break;
-        case 7:
-            choosenEnemy.loadEnemy("Enhjørning");
-            battleMethod(choosenEnemy);
-            runGame = !gameMenu();
-        case 8:
-            choosenEnemy.loadEnemy("Drage");
-            battleMethod(choosenEnemy);
-            runGame = !gameMenu();
-            break;
-        case 0:
-            saveAndExit();
-            runGame = false;
-            break;
-        default:
-            std::cout << "Invalid choice. Please try agian." << std::endl;
-            break;
+        } else {
+            std::cout << "No enemy selected. Exiting fight menu." << std::endl;
         }
-        closeDatabase(database);
+
+        closeDatabase (database);
         return runGame;
     }
 

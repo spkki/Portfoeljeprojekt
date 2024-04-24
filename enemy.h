@@ -4,6 +4,7 @@
 
 #pragma once
 #include "hero.h"
+#include "datamanager.h"
 
 class Enemy
 {
@@ -45,19 +46,33 @@ public:
     }
 
     void loadEnemy(std::string enemyname){
-        QString _enemyname = QString::fromStdString(enemyname);
+        QSqlDatabase database;
+        openDatabase (database);
         QSqlQuery query;
-        query.prepare("SELECT * FROM enemy WHERE name = :name");
-        query.bindValue(":name", _enemyname);
-        if(query.exec() && query.next()){
-            _name = query.value("name").toString().toStdString();
-            _xpdrop = query.value("xpdrop").toInt();
-            _hp = query.value("hp").toInt();
-            _damage = query.value("damage").toInt();
+        query.prepare("SELECT name, hp, damage, xpdrop FROM enemy");
+        if (query.exec()){
+            std::cout << "Avalible enemies: " << std::endl;
+            int count = 1;
+            while (query.next()){
+                std::string name = query.value(0).toString().toStdString();
+                int hp = query.value(1).toInt();
+                int damage = query.value(2).toInt();
+                int xpdrop = query.value(3).toInt();
+                std::cout << count << ". " << name << "(HP: " << hp << ", Damage: " << damage << ", XP Drop: " << xpdrop << ")" << std::endl; //Add other things into this statement
+                count++;
+            }
+            int choice;
+            std::cout << "Choose your enemy: ";
+            std::cin >> choice;
 
-            std::cout << "Enemy loaded succesfully" << std::endl;
-        } else {
-            std::cout << "Enemy could not load" << std::endl;
+            query.seek(choice-1);
+
+            _name = query.value(0).toString().toStdString();
+            _hp = query.value(1).toInt();
+            _damage = query.value(2).toInt();
+            _xpdrop = query.value(3).toInt();
+
+            std::string selectedEnemy = query.value(0).toString().toStdString();
         }
     }
 };
