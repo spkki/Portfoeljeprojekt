@@ -73,11 +73,13 @@ public:
             enemy.takeDamage(currentHero.dealDamage());
             if(currentHero.getCurrentHp() <= 0){
                 std::cout << "You have died!" << std::endl;
+                currentHero.heal();
                 fightActive = false;
             } else if(enemy.getHp() <= 0){
                 std::cout << enemy.getName() << " has died " << std::endl;
                 currentHero.gainXp(enemy.getXpDrop());
-                currentHero.setCurrentHp();
+                std::cout << "You gained " << enemy.getXpDrop() << "xp" << std::endl;
+                currentHero.heal();
                 fightActive = false;
             }
         }
@@ -156,12 +158,17 @@ public:
         bool runGame = true;
         std::cout << "Your optiens are: " << std::endl;
         std::cout << "1. Fight monsters." << std::endl;
+        std::cout << "2. Get stats." << std::endl;
         std::cout << "0. Exit." << std::endl;
 
         int choice = getMenuChoice();
         switch (choice) {
         case 1:
             runGame = !fightMenu();
+            break;
+        case 2:
+            currentHero.getStats();
+            gameMenu();
             break;
         case 0:
             saveAndExit();

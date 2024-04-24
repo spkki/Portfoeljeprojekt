@@ -40,6 +40,11 @@ public:
         return _name;
     };
 
+    std::string printName(){
+        std::cout << "Name: " << _name << std::endl;
+        return _name;
+    }
+
     void setXp(int xp){
         _xp = xp;
     }
@@ -64,7 +69,7 @@ public:
     }
 
     int getHp(){
-        //std::cout << "hp: " << _hp << std::endl;
+        std::cout << "hp: " << _hp << std::endl;
         return _hp;
     }
 
@@ -73,6 +78,10 @@ public:
     }
 
     void setCurrentHp(){
+        _currentHp = _hp;
+    }
+
+    void heal(){
         _currentHp = _hp;
     }
 
@@ -87,6 +96,15 @@ public:
 
     int getStats(std::string name){
         _name = name;
+        printName();
+        getLevel();
+        getXp();
+        getHp();
+        getStrength();
+    }
+
+    int getStats(){
+        printName();
         getLevel();
         getXp();
         getHp();
