@@ -20,6 +20,7 @@ private:
     int _level;
     int _hp;
     int _strength;
+    int _currentHp;
 
 public:
     Hero(std::string name = "", int xp = 0, int level = 1, int hp = 10, int strength = 2){
@@ -28,6 +29,7 @@ public:
         _level = level;
         _hp = hp;
         _strength = strength;
+        _currentHp = _hp;
     }
 
     void setName(std::string nameinput){
@@ -62,8 +64,16 @@ public:
     }
 
     int getHp(){
-        std::cout << "hp: " << _hp << std::endl;
+        //std::cout << "hp: " << _hp << std::endl;
         return _hp;
+    }
+
+    int getCurrentHp(){
+        return _currentHp;
+    }
+
+    void setCurrentHp(){
+        _currentHp = _hp;
     }
 
     void setStrength(int strength){
@@ -84,16 +94,16 @@ public:
     }
 
     void takeDamage(int damage){
-        _hp -= damage;
-        if (_hp > 0) {
-            std::cout << _name << " has " << _hp << " hp left" << std::endl;
-        } else {
-            std::cout << _name << " IS DEAD!" << std::endl;
+        _currentHp -= damage;
+        if (_currentHp > 0) {
+            std::cout << _name << " has " << _currentHp << " hp left" << std::endl; //Måske tilføje max hp
+        } else if (_currentHp <= 0){
+            //std::cout << _name << " IS DEAD!" << std::endl;
         }
     }
 
-    void dealDamage(int damage){
-        _strength = damage;
+    int dealDamage(){
+        return _strength;
     }
 
     void gainXp(int xpGain){

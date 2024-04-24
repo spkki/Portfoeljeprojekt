@@ -8,8 +8,11 @@ class Game
 {
 private:
     Hero currentHero;
+    Enemy choosenEnemy;
 
 public:
+    Game(){};
+
     int getMenuChoice(){
         int choice;
         std::cout << "Enter your choice: ";
@@ -61,6 +64,94 @@ public:
         closeDatabase(database);
     }
 
+    void battleMethod(Enemy& enemy){
+        bool fightActive = true;
+        while (fightActive) {
+            std::cout << enemy.getName() <<" attacked " << currentHero.getName() << std::endl;
+            currentHero.takeDamage(enemy.dealDamage());
+            std::cout << currentHero.getName() << " attacked " << enemy.getName() << std::endl;
+            enemy.takeDamage(currentHero.dealDamage());
+            if(currentHero.getCurrentHp() <= 0){
+                std::cout << "You have died!" << std::endl;
+                fightActive = false;
+            } else if(enemy.getHp() <= 0){
+                std::cout << enemy.getName() << " has died " << std::endl;
+                currentHero.gainXp(enemy.getXpDrop());
+                currentHero.setCurrentHp();
+                fightActive = false;
+            }
+        }
+    }
+
+    bool fightMenu(){
+        bool runGame = true;
+
+        QSqlDatabase database; //Open and find from database
+        openDatabase(database);
+        std::cout << "Choose a monster: " << std::endl;
+        std::cout << "1. Hest" << std::endl;
+        std::cout << "2. Weak Goblin" << std::endl;
+        std::cout << "3. Strong Goblin" << std::endl;
+        std::cout << "4. Stronger Goblin" << std::endl;
+        std::cout << "5. Den stærkeste Goblin" << std::endl;
+        std::cout << "6. Abe Kongen" << std::endl;
+        std::cout << "7. Enhjørning" << std::endl;
+        std::cout << "8. Drage" << std::endl;
+        std::cout << "0. Exit" << std::endl;
+
+        int choice = getMenuChoice();
+        switch (choice) {
+        case 1:
+            choosenEnemy.loadEnemy("Hest");
+            battleMethod(choosenEnemy);
+            runGame = !gameMenu();
+            break;
+        case 2:
+            choosenEnemy.loadEnemy("Weak Goblin");
+            battleMethod(choosenEnemy);
+            runGame = !gameMenu();
+            break;
+        case 3:
+            choosenEnemy.loadEnemy("Strong Goblin");
+            battleMethod(choosenEnemy);
+            runGame = !gameMenu();
+            break;
+        case 4:
+            choosenEnemy.loadEnemy("Stronger Goblin");
+            battleMethod(choosenEnemy);
+            runGame = !gameMenu();
+            break;
+        case 5:
+            choosenEnemy.loadEnemy("Den stærkeste Goblin");
+            battleMethod(choosenEnemy);
+            runGame = !gameMenu();
+            break;
+        case 6:
+            choosenEnemy.loadEnemy("Abe Kongen");
+            battleMethod(choosenEnemy);
+            runGame = !gameMenu();
+            break;
+        case 7:
+            choosenEnemy.loadEnemy("Enhjørning");
+            battleMethod(choosenEnemy);
+            runGame = !gameMenu();
+        case 8:
+            choosenEnemy.loadEnemy("Drage");
+            battleMethod(choosenEnemy);
+            runGame = !gameMenu();
+            break;
+        case 0:
+            saveAndExit();
+            runGame = false;
+            break;
+        default:
+            std::cout << "Invalid choice. Please try agian." << std::endl;
+            break;
+        }
+        closeDatabase(database);
+        return runGame;
+    }
+
     bool gameMenu(){
         bool runGame = true;
         std::cout << "Your optiens are: " << std::endl;
@@ -70,11 +161,10 @@ public:
         int choice = getMenuChoice();
         switch (choice) {
         case 1:
-            //Fight monster code
-            runGame = false;
+            runGame = !fightMenu();
             break;
         case 0:
-            saveAndExit(); //Does not work correctly so just exit instead
+            saveAndExit();
             runGame = true;
             break;
         default:
@@ -103,7 +193,6 @@ public:
                 runGame = !gameMenu();
                 break;
             case 0:
-                saveAndExit(); //Does not work yet so just exit
                 runGame = false;
                 break;
             default:
