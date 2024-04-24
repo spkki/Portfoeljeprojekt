@@ -11,6 +11,7 @@
 #include <QSqlError>
 #include <QSqlQuery>
 #include <QString>
+#include <unistd.h>
 
 class Hero
 {
@@ -41,7 +42,8 @@ public:
     };
 
     std::string printName(){
-        std::cout << "Name: " << _name << std::endl;
+        typeText("Name: " + _name + "\n");
+        //std::cout << "Name: " << _name << std::endl;
         return _name;
     }
 
@@ -50,7 +52,9 @@ public:
     }
 
     int getXp(){
-        std::cout << "xp: " << _xp << std::endl;
+        typeText("XP: ");
+        std::cout << _xp << std::endl;
+        //std::cout << "xp: " << _xp << std::endl;
         return _xp;
     }
 
@@ -60,7 +64,9 @@ public:
 
     int getLevel()
     {
-        std::cout << "Level: " << _level << std::endl;
+        typeText("Level: ");
+        std::cout << _level << std::endl;
+        //std::cout << "Level: " << _level << std::endl;
         return _level;
     }
 
@@ -69,7 +75,9 @@ public:
     }
 
     int getHp(){
-        std::cout << "hp: " << _hp << std::endl;
+        typeText("HP: ");
+        std::cout << _hp << std::endl;
+        //std::cout << "hp: " << _hp << std::endl;
         return _hp;
     }
 
@@ -90,7 +98,9 @@ public:
     }
 
     int getStrength(){
-        std::cout << "Strength: " << _strength << std::endl;
+        typeText("Strength: ");
+        std::cout << _strength << std::endl;
+        //std::cout << "Strength: " << _strength << std::endl;
         return _strength;
     }
 
@@ -101,6 +111,7 @@ public:
         getXp();
         getHp();
         getStrength();
+        return 0;
     }
 
     int getStats(){
@@ -109,14 +120,18 @@ public:
         getXp();
         getHp();
         getStrength();
+        return 0;
     }
 
     void takeDamage(int damage){
         _currentHp -= damage;
         if (_currentHp > 0) {
-            std::cout << _name << " has " << _currentHp << " hp left" << std::endl; //Måske tilføje max hp
+            typeText(_name + " has ");
+            std::cout << _currentHp;
+            typeText(" hp left\n");
+            //std::cout << _name << " has " << _currentHp << " hp left" << std::endl; //Måske tilføje max hp
         } else if (_currentHp <= 0){
-            //std::cout << _name << " IS DEAD!" << std::endl;
+            //std::cout << _name << " IS DEAD!" << std::endl; //Removed because fightmethod handles it
         }
     }
 
@@ -136,8 +151,9 @@ public:
         _hp += 2;
         _strength += 1;
         _level++;
-        std::cout << "You have leveled up. You are now level: " << _level
-                  << std::endl; //Add so it shows how much xp are required for next level.
+        typeText("You have leveled up. You are now level: ");
+        std::cout << _level << std::endl;
+        //std::cout << "You have leveled up. You are now level: " << _level << std::endl; //Add so it shows how much xp are required for next level.
     }
 
     void loadHero(std::string heroname){
@@ -186,5 +202,13 @@ public:
             qDebug() << "Failed to delete character: " << query.lastError().text();
         }
         qDebug() << "Character deleted succesfully!";
+    }
+
+    void typeText(std::string text){
+        for (std::size_t i=0; i<text.size(); i++)
+        {
+            std::cout << text[i] << std::flush;
+            usleep(60000);
+        }
     }
 };

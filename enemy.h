@@ -38,10 +38,13 @@ public:
 
     void takeDamage(int damage){
         _hp -= damage;
-        if (_hp > 0) {
-            std::cout << _name << " has " << _hp << " hp left" << std::endl;
+        if (_hp > 0){
+            currentHero.typeText(_name + " has ");
+            std::cout << _hp;
+            currentHero.typeText(" hp left\n");
+            //std::cout << _name << " has " << _hp << " hp left" << std::endl;
         } else if (_hp <= 0){
-            //std::cout << _name << " IS DEAD!" << std::endl;
+            //std::cout << _name << " IS DEAD!" << std::endl; //Removed because fightmethod handles it
         }
     }
 
@@ -51,7 +54,8 @@ public:
         QSqlQuery query;
         query.prepare("SELECT name, hp, damage, xpdrop FROM enemy");
         if (query.exec()){
-            std::cout << "Avalible enemies: " << std::endl;
+            currentHero.typeText("Avaliable enemies: \n");
+            //std::cout << "Avaliable enemies: " << std::endl;
             int count = 1;
             while (query.next()){
                 std::string name = query.value(0).toString().toStdString();
@@ -62,7 +66,8 @@ public:
                 count++;
             }
             int choice;
-            std::cout << "Choose your enemy: ";
+            currentHero.typeText("Choose your enemy: ");
+            //std::cout << "Choose your enemy: ";
             std::cin >> choice;
 
             query.seek(choice-1);
@@ -75,4 +80,5 @@ public:
             std::string selectedEnemy = query.value(0).toString().toStdString();
         }
     }
+
 };
