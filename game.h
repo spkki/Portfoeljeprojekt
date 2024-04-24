@@ -2,13 +2,7 @@
 #include <iostream>
 #include "hero.h"
 #include "datamanager.h"
-
-void mainMenu(){
-    std::cout << "Welcome to RPG GAME!" << std::endl;
-    std::cout << "1. Create new character" << std::endl;
-    std::cout << "2. Load existing character" << std::endl;
-    std::cout << "3. Exit game" << std::endl;
-}
+#include "enemy.h"
 
 int getMenuChoice(){
     int choice;
@@ -57,4 +51,54 @@ void saveAndExit(Hero& currentHero){
     currentHero.saveHero();
     std::cout << "Progress has been saved succesfully!";
     closeDatabase(database);
+}
+
+void gameMenu(){
+    std::cout << "Your optiens are: " << std::endl;
+    std::cout << "1. Fight monsters." << std::endl;
+    std::cout << "0. Save and exit." << std::endl;
+}
+
+void mainMenu(){
+    std::cout << "Welcome to RPG GAME!" << std::endl;
+    std::cout << "1. Create new character" << std::endl;
+    std::cout << "2. Load existing character" << std::endl;
+    std::cout << "0. Save and exit game" << std::endl;
+
+    bool runGame = true;
+    Hero currentHero;
+
+    while (runGame) {
+        int mainMenuChoice = getMenuChoice();
+        switch(mainMenuChoice){
+        case 1:
+            createNewCharacter();
+            break;
+        case 2:
+            loadExistingCharacter();
+            break;
+        case 0:
+            saveAndExit(currentHero);
+            runGame = false;
+            break;
+        default:
+            std::cout << "Invalid choice. Please try again." << std::endl;
+            break;
+        }
+
+        if(runGame){
+            gameMenu();
+            int gameMenuChoice = getMenuChoice();
+            switch (gameMenuChoice){
+            case 1:
+                //Fight monster code
+                break;
+            case 0:
+                saveAndExit(currentHero);
+            default:
+                std::cout << "Invalid choice. Please try again." << std::endl;
+                break;
+            }
+        }
+    }
 }

@@ -7,33 +7,7 @@
 
 int main()
 {
-
-    bool runGame = true;
-    Hero currentHero;
-
-    while (runGame) {
-        mainMenu();
-        int choice;
-        std::cout << "Enter your choice: ";
-        std::cin >> choice;
-
-        switch(choice){
-        case 1:
-            createNewCharacter();
-            break;
-        case 2:
-            loadExistingCharacter();
-            break;
-        case 3:
-            saveAndExit(currentHero);
-            runGame = false;
-            break;
-        default:
-            std::cout << "Invalid choice. Please try again." << std::endl;
-            break;
-        }
-    }
-
+    mainMenu();
     return 0;
 
 
@@ -64,6 +38,6 @@ int main()
     std::cout << "Loaded Hero's " << loadedHero.getName() << std::endl;
     //Test.deleteHero();
     closeDatabase(database);
-
 */
 }
+
