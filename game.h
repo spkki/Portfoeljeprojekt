@@ -89,8 +89,18 @@ public:
         while (fightActive) {
             std::cout << enemy.getName() <<" attacked " << currentHero.getName() << std::endl;
             currentHero.takeDamage(enemy.dealDamage());
-            std::cout << currentHero.getName() << " attacked " << enemy.getName() << std::endl;
-            enemy.takeDamage(currentHero.dealDamage());
+
+            bool attackInput = false;
+
+            while(!attackInput){
+                std::cout << "Press Enter to attack: ";
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                std::cin.get();
+                attackInput = true;
+                std::cout << currentHero.getName() << " attacked " << enemy.getName() << std::endl;
+                enemy.takeDamage(currentHero.dealDamage());
+            }
+
             if(currentHero.getCurrentHp() <= 0){
                 std::cout << "You have died!" << std::endl;
                 currentHero.heal();
@@ -159,7 +169,7 @@ public:
     bool mainMenu(){
         bool runGame = true;
         while (runGame){
-            std::cout << "Welcome to RPG GAME!" << std::endl;
+            std::cout << "Welcome to Dragon Slayer Simulator!" << std::endl;
             std::cout << "1. Create new character" << std::endl;
             std::cout << "2. Load existing character" << std::endl;
             std::cout << "0. Exit game" << std::endl;
