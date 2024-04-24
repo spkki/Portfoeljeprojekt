@@ -70,10 +70,17 @@ public:
         _strength = strength;
     }
 
-    int getStrength()
-    {
+    int getStrength(){
         std::cout << "Strength: " << _strength << std::endl;
         return _strength;
+    }
+
+    int getStats(std::string name){
+        _name = name;
+        getLevel();
+        getXp();
+        getHp();
+        getStrength();
     }
 
     void takeDamage(int damage){
@@ -140,7 +147,7 @@ public:
         qDebug() << "Character saved succesfully!";
     }
 
-    void deleteHero(){
+    void deleteHero(std::string _name){
         QString name = QString::fromStdString(_name);
 
         QSqlQuery query;

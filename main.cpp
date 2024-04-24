@@ -7,9 +7,11 @@
 
 int main()
 {
-    mainMenu();
-    return 0;
 
+    Game game;
+     game.mainMenu();
+
+     return 0;
 
 /*
     Hero Test("John");

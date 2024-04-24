@@ -11,6 +11,13 @@
 #include <QSqlQuery>
 
 bool openDatabase(QSqlDatabase& database){ //Open database function
+
+    if(QSqlDatabase::contains()){
+        database = QSqlDatabase::database();
+        qDebug() << "Database being reused";
+        return true;
+    }
+
     database = QSqlDatabase::addDatabase("QSQLITE");
     database.setDatabaseName("/home/spkki/workspace/software-udvikling/portfolio/Portfoeljeprojekt/database");
 
