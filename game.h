@@ -97,41 +97,44 @@ public:
         closeDatabase(database);
     }
 
-    void battleMethod(Enemy& enemy){
+    void battleMethod (Enemy& enemy){
         bool fightActive = true;
-        while (fightActive) {
-            typeText(enemy.getName() + " attacked " + currentHero.getName() + "\n");
-            //std::cout << enemy.getName() <<" attacked " << currentHero.getName() << std::endl;
-            currentHero.takeDamage(enemy.dealDamage());
+        while(fightActive){
+            int input;
+            typeText("Press '1' to attack: ");
+            //std::cout << "Press '1' to attack: ";
+            std::cin >> input;
 
-            bool attackInput = false;
-
-            while(!attackInput){
-                typeText("Press 'Enter' to attack: ");
-                //std::cout << "Press Enter to attack: ";
-                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-                std::cin.get();
-                attackInput = true;
+            switch(input){
+            case 1:
                 typeText(currentHero.getName() + " attacked " + enemy.getName() + "\n");
                 //std::cout << currentHero.getName() << " attacked " << enemy.getName() << std::endl;
                 enemy.takeDamage(currentHero.dealDamage());
-            }
+                typeText(enemy.getName() + " attacked " + currentHero.getName() + "\n");
+                //std::cout << enemy.getName() <<" attacked " << currentHero.getName() << std::endl;
+                currentHero.takeDamage(enemy.dealDamage());
+                if(currentHero.getCurrentHp() <= 0){
+                    typeText("You have died!\n");
+                    //std::cout << "You have died!" << std::endl;
+                    currentHero.heal(); //Heals the player so the player can continue to play
+                    fightActive = false;
+                } else if(enemy.getHp() <= 0){
+                    typeText(enemy.getName() + " has died \n");
+                    //std::cout << enemy.getName() << " has died " << std::endl;
+                    currentHero.gainXp(enemy.getXpDrop());
+                    typeText(currentHero.getName() + " gained ");
+                    std::cout << enemy.getXpDrop();
+                    typeText("xp\n");
+                    //std::cout << currentHero.getName() << " gained " << enemy.getXpDrop() << "xp" << std::endl;
+                    currentHero.heal(); //Heals the player to maxhp MIGHT REMOVE LATER
+                    fightActive = false;
+                }
+                break;
 
-            if(currentHero.getCurrentHp() <= 0){
-                typeText("You have died!\n");
-                //std::cout << "You have died!" << std::endl;
-                currentHero.heal(); //Heals the player so the player can continue to play
-                fightActive = false;
-            } else if(enemy.getHp() <= 0){
-                typeText(enemy.getName() + " has died \n");
-                //std::cout << enemy.getName() << " has died " << std::endl;
-                currentHero.gainXp(enemy.getXpDrop());
-                typeText(currentHero.getName() + " gained ");
-                std::cout << enemy.getXpDrop();
-                typeText("xp\n");
-                //std::cout << currentHero.getName() << " gained " << enemy.getXpDrop() << "xp" << std::endl;
-                currentHero.heal(); //Heals the player to maxhp
-                fightActive = false;
+            default:
+                typeText("Invalid choice try again!\n");
+                //std::cout << "Invalid choice try again!" << std::endl;
+
             }
         }
     }
@@ -145,13 +148,12 @@ public:
         typeText("Choose a monster\n");
         //std::cout << "Choose a monster" << std::endl;
 
-        Enemy enemy;
-        enemy.loadEnemy("");
+        choosenEnemy.loadEnemy();
 
-        std::string enemyName = enemy.getName();
+        std::string enemyName = choosenEnemy.getName();
 
         if (!enemyName.empty()){
-            battleMethod(enemy);
+            battleMethod(choosenEnemy);
             runGame = !gameMenu();
         } else {
             typeText("No enemy selected. Exiting fight menu.\n");
@@ -167,10 +169,12 @@ public:
         typeText("Your options are: \n");
         typeText("1. Fight monsters.\n");
         typeText("2. Get stats.\n");
-        typeText("0. Exit.\n");
+        //typeText("3. Heal\n"); Removed for now could be nice to have later
+        typeText("0. Save and Exit.\n");
         //std::cout << "Your options are: " << std::endl;
         //std::cout << "1. Fight monsters." << std::endl;
         //std::cout << "2. Get stats." << std::endl;
+        //std::cout << "3. Heal" << std::endl;
         //std::cout << "0. Exit." << std::endl;
 
         int choice = getMenuChoice();
@@ -182,6 +186,12 @@ public:
             currentHero.getStats();
             gameMenu();
             break;
+        /*
+        case 3: //Function to heal
+            currentHero.heal();
+            gameMenu();
+            break;
+*/
         case 0:
             saveAndExit();
             runGame = true;

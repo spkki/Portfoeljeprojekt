@@ -9,14 +9,15 @@
 class Enemy
 {
 private:
+    std::string _name;
     int _damage;
     int _xpdrop;
     int _hp;
-    std::string _name;
     Hero currentHero;
 
 public:
     Enemy(){};
+
     Enemy(std::string name, int hp, int damage, int xpdrop):_name(name), _damage(damage), _xpdrop(xpdrop), _hp(hp){}
 
     std::string getName(){
@@ -48,7 +49,7 @@ public:
         }
     }
 
-    void loadEnemy(std::string enemyname){
+    void loadEnemy(){
         QSqlDatabase database;
         openDatabase (database);
         QSqlQuery query;
@@ -76,8 +77,6 @@ public:
             _hp = query.value(1).toInt();
             _damage = query.value(2).toInt();
             _xpdrop = query.value(3).toInt();
-
-            std::string selectedEnemy = query.value(0).toString().toStdString();
         }
     }
 
