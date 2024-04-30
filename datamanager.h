@@ -9,9 +9,10 @@
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
+#include <QDir>
 
 bool openDatabase(QSqlDatabase& database){ //Open database function
-
+    QSqlDatabase query;
     if(QSqlDatabase::contains()){
         database = QSqlDatabase::database();
         qDebug() << "Database being reused";
@@ -19,13 +20,14 @@ bool openDatabase(QSqlDatabase& database){ //Open database function
     }
 
     database = QSqlDatabase::addDatabase("QSQLITE");
-    database.setDatabaseName("/home/spkki/workspace/software-udvikling/portfolio/Portfoeljeprojekt/database");
+    //QString currentPath = QDir::currentPath();
+    //qDebug() << "Current path:" << currentPath;
+    database.setDatabaseName("../../database");
 
     if (!database.open()){
         qWarning() << "Could not open database:" << database.lastError().text();
         return false;
     }
-
     qDebug() << "Database succesfully opened";
     return true;
 }

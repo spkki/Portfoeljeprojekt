@@ -208,7 +208,7 @@ public:
         for (std::size_t i=0; i<text.size(); i++)
         {
             std::cout << text[i] << std::flush;
-            usleep(60000);
+            usleep(30000); //60000 is default
         }
     }
 };

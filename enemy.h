@@ -80,4 +80,35 @@ public:
         }
     }
 
+    void loadCaveEnemy(){
+        QSqlDatabase database;
+        openDatabase (database);
+        QSqlQuery query;
+        query.prepare("SELECT enemy.name, enemy.hp, enemy.damage, enemy.xpdrop FROM enemy JOIN cave_enemies ON enemy.id = cave_enemies.enemy_id JOIN caves ON cave_enemies.cave_id = caves.id");
+        if (query.exec()){
+            currentHero.typeText("Avaliable enemies: \n");
+            //std::cout << "Avaliable enemies: " << std::endl;
+            int count = 1;
+            while (query.next()){
+                std::string name = query.value(0).toString().toStdString();
+                int hp = query.value(1).toInt();
+                int damage = query.value(2).toInt();
+                int xpdrop = query.value(3).toInt();
+                std::cout << count << ". " << name << "(HP: " << hp << ", Damage: " << damage << ", XP Drop: " << xpdrop << ")" << std::endl; //Add other things into this statement
+                count++;
+            }
+            int choice;
+            currentHero.typeText("Choose your enemy: ");
+            //std::cout << "Choose your enemy: ";
+            std::cin >> choice;
+
+            query.seek(choice-1);
+
+            _name = query.value(0).toString().toStdString();
+            _hp = query.value(1).toInt();
+            _damage = query.value(2).toInt();
+            _xpdrop = query.value(3).toInt();
+        }
+    }
+
 };

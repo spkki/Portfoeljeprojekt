@@ -3,6 +3,7 @@
 #include "hero.h"
 #include "datamanager.h"
 #include "enemy.h"
+#include "cave.h"
 #include <unistd.h>
 
 class Game
@@ -10,6 +11,7 @@ class Game
 private:
     Hero currentHero;
     Enemy choosenEnemy;
+    Cave choosenCave;
 
 public:
     Game(){};
@@ -139,6 +141,26 @@ public:
         }
     }
 
+    bool loadDungeon(){
+        bool runGame = true;
+        QSqlDatabase database;
+        openDatabase(database);
+
+        choosenCave.loadCave();
+        choosenEnemy.loadCaveEnemy();
+        std::string enemyName = choosenEnemy.getName();
+        if (!enemyName.empty()){
+            battleMethod(choosenEnemy);
+            runGame = !gameMenu();
+        } else {
+            typeText("No enemy selected. Exiting fight menu.\n");
+            //std::cout << "No enemy selected. Exiting fight menu." << std::endl;
+        }
+
+        closeDatabase(database);
+        return runGame;
+    }
+
     bool fightMenu(){
         bool runGame = true;
 
@@ -170,6 +192,7 @@ public:
         typeText("1. Fight monsters.\n");
         typeText("2. Get stats.\n");
         //typeText("3. Heal\n"); Removed for now could be nice to have later
+        typeText("4. Caves\n");
         typeText("0. Save and Exit.\n");
         //std::cout << "Your options are: " << std::endl;
         //std::cout << "1. Fight monsters." << std::endl;
@@ -192,6 +215,10 @@ public:
             gameMenu();
             break;
 */
+        case 4:
+            runGame = !loadDungeon();
+            break;
+
         case 0:
             saveAndExit();
             runGame = true;
@@ -242,7 +269,7 @@ public:
         for (std::size_t i=0; i<text.size(); i++)
         {
             std::cout << text[i] << std::flush;
-            usleep(60000);
+            usleep(30000); //600000 is defualt
         }
     }
 };
