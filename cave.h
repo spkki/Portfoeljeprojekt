@@ -63,6 +63,7 @@ public:
             _gold = query.value(1).toInt();
             }
         //choosenEnemy.loadCaveEnemy();
+        closeDatabase (database);
     }
 
     void typeText(std::string text){

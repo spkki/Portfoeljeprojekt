@@ -99,7 +99,7 @@ public:
         closeDatabase(database);
     }
 
-    void battleMethod (Enemy& enemy){
+    void battleSingle (Enemy& enemy){
         bool fightActive = true;
         while(fightActive){
             int input;
@@ -115,7 +115,7 @@ public:
                 typeText(enemy.getName() + " attacked " + currentHero.getName() + "\n");
                 //std::cout << enemy.getName() <<" attacked " << currentHero.getName() << std::endl;
                 currentHero.takeDamage(enemy.dealDamage());
-                if(currentHero.getCurrentHp() <= 0){
+                if(currentHero.getHp() <= 0){
                     typeText("You have died!\n");
                     //std::cout << "You have died!" << std::endl;
                     currentHero.heal(); //Heals the player so the player can continue to play
@@ -141,13 +141,65 @@ public:
         }
     }
 
+    void battleMultiple (Enemy& enemy){
+        for (int i = 0; i < choosenEnemy.getAmmount(); ++i) {
+            bool fightActive = true;
+            while(fightActive){
+                int input;
+                typeText("Press '1' to attack: ");
+                //std::cout << "Press '1' to attack: ";
+                std::cin >> input;
+
+                switch(input){
+                case 1:
+                    typeText(currentHero.getName() + " attacked " + enemy.getName() + "\n");
+                    //std::cout << currentHero.getName() << " attacked " << enemy.getName() << std::endl;
+                    enemy.takeDamage(currentHero.dealDamage());
+                    typeText(enemy.getName() + " attacked " + currentHero.getName() + "\n");
+                    //std::cout << enemy.getName() <<" attacked " << currentHero.getName() << std::endl;
+                    currentHero.takeDamage(enemy.dealDamage());
+                    if(currentHero.getHp() <= 0){
+                        typeText("You have died!\n");
+                        //std::cout << "You have died!" << std::endl;
+                        currentHero.heal(); //Heals the player so the player can continue to play
+                        fightActive = false;
+                    } else if(enemy.getHp() <= 0){
+                        typeText(enemy.getName() + " has died \n");
+                        //std::cout << enemy.getName() << " has died " << std::endl;
+                        currentHero.gainXp(enemy.getXpDrop());
+                        typeText(currentHero.getName() + " gained ");
+                        std::cout << enemy.getXpDrop();
+                        typeText("xp\n");
+                        //std::cout << currentHero.getName() << " gained " << enemy.getXpDrop() << "xp" << std::endl;
+                        currentHero.heal(); //Heals the player to maxhp MIGHT REMOVE LATER
+                        fightActive = false;
+                    }
+                    break;
+
+                default:
+                    typeText("Invalid choice try again!\n");
+                    //std::cout << "Invalid choice try again!" << std::endl;
+
+                }
+            }
+        }
+        }
+
+    void battleMethod (Enemy& enemy){
+        if(choosenEnemy.getAmmount() > 1){
+            battleMultiple(choosenEnemy);
+        } else {
+            battleSingle(choosenEnemy);
+        }
+    }
+
     bool loadDungeon(){
         bool runGame = true;
         QSqlDatabase database;
         openDatabase(database);
 
         choosenCave.loadCave();
-        choosenEnemy.loadCaveEnemy();
+        choosenEnemy.loadCaveEnemy(choosenCave.getName());
         std::string enemyName = choosenEnemy.getName();
         if (!enemyName.empty()){
             battleMethod(choosenEnemy);
@@ -155,8 +207,8 @@ public:
         } else {
             typeText("No enemy selected. Exiting fight menu.\n");
             //std::cout << "No enemy selected. Exiting fight menu." << std::endl;
+            runGame = !gameMenu();
         }
-
         closeDatabase(database);
         return runGame;
     }
@@ -180,6 +232,7 @@ public:
         } else {
             typeText("No enemy selected. Exiting fight menu.\n");
             //std::cout << "No enemy selected. Exiting fight menu." << std::endl;
+            runGame = !gameMenu();
         }
 
         closeDatabase (database);
