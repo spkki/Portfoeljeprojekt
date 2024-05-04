@@ -13,7 +13,6 @@ class Cave
 private:
     std::string _name;
     int _gold;
-    Enemy choosenEnemy;
 
 public:
     Cave(std::string name = "", int gold = 0){
@@ -49,7 +48,7 @@ public:
             while (query.next()){
                 std::string name = query.value(0).toString().toStdString();
                 int gold = query.value(1).toInt();
-                std::cout << count << ". " << name << "(Gold: " << gold << ")" << std::endl; //Add other things into this statement
+                std::cout << count << ". " << name << " (Gold: " << gold << ")" << std::endl; //Add other things into this statement
                 count++;
             }
             int choice;
@@ -62,7 +61,6 @@ public:
             _name = query.value(0).toString().toStdString();
             _gold = query.value(1).toInt();
             }
-        //choosenEnemy.loadCaveEnemy();
         closeDatabase (database);
     }
 

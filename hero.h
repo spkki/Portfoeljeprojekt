@@ -21,14 +21,16 @@ private:
     int _level;
     int _hp;
     int _strength;
+    int _gold;
 
 public:
-    Hero(std::string name = "", int xp = 0, int level = 1, int hp = 10, int strength = 2){
+    Hero(std::string name = "", int xp = 0, int level = 1, int hp = 10, int strength = 2, int gold = 0){
         _name = name;
         _xp = xp;
         _level = level;
         _hp = hp;
         _strength = strength;
+        _gold = gold;
     }
 
     void setName(std::string nameinput){
@@ -73,6 +75,10 @@ public:
     }
 
     int getHp(){
+        return _hp;
+    }
+
+    int getHpStats(){
         typeText("HP: ");
         std::cout << _hp << std::endl;
         //std::cout << "hp: " << _hp << std::endl;
@@ -94,13 +100,24 @@ public:
         return _strength;
     }
 
+    void setGold(int gold){
+        _gold += gold;
+    }
+
+    int getGold(){
+        typeText("Gold: ");
+        std::cout << _gold << std::endl;
+        return _gold;
+    }
+
     int getStats(std::string name){
         _name = name;
         printName();
         getLevel();
         getXp();
-        getHp();
+        getHpStats();
         getStrength();
+        getGold();
         return 0;
     }
 
@@ -108,8 +125,9 @@ public:
         printName();
         getLevel();
         getXp();
-        getHp();
+        getHpStats();
         getStrength();
+        getGold();
         return 0;
     }
 
@@ -157,6 +175,7 @@ public:
             _level = query.value("level").toInt();
             _hp = query.value("hp").toInt();
             _strength = query.value("strength").toInt();
+            _gold = query.value("gold").toInt();
 
             std::cout << "Hero loaded succesfully" << std::endl;
         } else {
@@ -168,12 +187,13 @@ public:
         QString name = QString::fromStdString(_name);
 
         QSqlQuery query;
-        query.prepare("INSERT INTO hero (name, xp, level, hp, strength) VALUES(:name, :xp, :level, :hp, :strength)");
+        query.prepare("INSERT INTO hero (name, xp, level, hp, strength, gold) VALUES(:name, :xp, :level, :hp, :strength, :gold)");
         query.bindValue(":name", name);
         query.bindValue(":xp", _xp);
         query.bindValue(":level", _level);
         query.bindValue(":hp", _hp);
         query.bindValue(":strength", _strength);
+        query.bindValue(":gold", _gold);
 
         if (!query.exec()){
             qDebug() << "Falied to save character: " << query.lastError().text();

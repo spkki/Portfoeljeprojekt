@@ -51,7 +51,7 @@ public:
         openDatabase(database);
 
         QSqlQuery query;
-        query.prepare("SELECT name, level, xp, hp, strength FROM hero");
+        query.prepare("SELECT name, level, xp, hp, strength, gold FROM hero");
         if(query.exec()){
             typeText("Avaliable characters: \n");
             //std::cout << "Avaliable characters: " << std::endl;
@@ -62,8 +62,9 @@ public:
                 int xp = query.value(2).toInt();
                 int hp = query.value(3).toInt();
                 int strength = query.value(4).toInt();
+                int gold = query.value(5).toInt();
                 //typeText(count + ". " + name + "(Level: " + level + ", XP: " + xp + ", HP: " + hp + ", Strength: " + strength + ")");
-                std::cout << count << ". " << name << "(Level: " << level << ", XP: " << xp << ", HP: " << hp << ", Strength: " << strength << ")" << std::endl;
+                std::cout << count << ". " << name << "(Level: " << level << ", XP: " << xp << ", HP: " << hp << ", Strength: " << strength << ", Gold: " << gold <<  ")" << std::endl;
                 count++;
             }
             int choice;
@@ -199,10 +200,14 @@ public:
         openDatabase(database);
 
         choosenCave.loadCave();
-        choosenEnemy.loadCaveEnemy(choosenCave.getName());
+        choosenEnemy.loadCaveEnemyVector(choosenCave.getName(), choosenEnemy);
         std::string enemyName = choosenEnemy.getName();
         if (!enemyName.empty()){
             battleMethod(choosenEnemy);
+            typeText("You won here is your ");
+            std::cout << choosenCave.getGold();
+            typeText(" gold\n");
+            currentHero.setGold(choosenCave.getGold());
             runGame = !gameMenu();
         } else {
             typeText("No enemy selected. Exiting fight menu.\n");
@@ -244,13 +249,14 @@ public:
         typeText("Your options are: \n");
         typeText("1. Fight monsters.\n");
         typeText("2. Get stats.\n");
-        //typeText("3. Heal\n"); Removed for now could be nice to have later
-        typeText("4. Caves\n");
+        typeText("3. Enter a cave\n");
+        //typeText("4. Heal\n"); Removed for now could be nice to have later
         typeText("0. Save and Exit.\n");
         //std::cout << "Your options are: " << std::endl;
         //std::cout << "1. Fight monsters." << std::endl;
         //std::cout << "2. Get stats." << std::endl;
-        //std::cout << "3. Heal" << std::endl;
+        //std::cout << "3. Enter a cave." << std::endl;
+        //std::cout << "4. Heal" << std::endl;
         //std::cout << "0. Exit." << std::endl;
 
         int choice = getMenuChoice();
@@ -262,16 +268,15 @@ public:
             currentHero.getStats();
             gameMenu();
             break;
-        /*
-        case 3: //Function to heal
+        case 3:
+            runGame = !loadDungeon();
+            break;
+            /*
+        case 4: //Function to heal
             currentHero.heal();
             gameMenu();
             break;
 */
-        case 4:
-            runGame = !loadDungeon();
-            break;
-
         case 0:
             saveAndExit();
             runGame = true;
