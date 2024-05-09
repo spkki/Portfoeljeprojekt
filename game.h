@@ -1,10 +1,11 @@
 #pragma once
 #include <iostream>
+#include <unistd.h>
 #include "hero.h"
 #include "datamanager.h"
 #include "enemy.h"
 #include "cave.h"
-#include <unistd.h>
+#include "magic.h"
 
 class Game
 {
@@ -12,6 +13,7 @@ private:
     Hero currentHero;
     Enemy choosenEnemy;
     Cave choosenCave;
+    Magic choosenMove;
 
 public:
     Game(){};
@@ -51,7 +53,7 @@ public:
         openDatabase(database);
 
         QSqlQuery query;
-        query.prepare("SELECT name, level, xp, hp, strength, gold FROM hero");
+        query.prepare("SELECT name, level, xp, hp, strength, gold, mana FROM hero");
         if(query.exec()){
             typeText("Avaliable characters: \n");
             //std::cout << "Avaliable characters: " << std::endl;
@@ -63,8 +65,9 @@ public:
                 int hp = query.value(3).toInt();
                 int strength = query.value(4).toInt();
                 int gold = query.value(5).toInt();
+                int mana = query.value(6).toInt();
                 //typeText(count + ". " + name + "(Level: " + level + ", XP: " + xp + ", HP: " + hp + ", Strength: " + strength + ")");
-                std::cout << count << ". " << name << "(Level: " << level << ", XP: " << xp << ", HP: " << hp << ", Strength: " << strength << ", Gold: " << gold <<  ")" << std::endl;
+                std::cout << count << ". " << name << "(Level: " << level << ", XP: " << xp << ", HP: " << hp << ", Strength: " << strength << ", Gold: " << gold << ", Mana: " << mana <<  ")" << std::endl;
                 count++;
             }
             int choice;
@@ -200,7 +203,8 @@ public:
         openDatabase(database);
 
         choosenCave.loadCave();
-        choosenEnemy.loadCaveEnemyVector(choosenCave.getName(), choosenEnemy);
+        choosenEnemy.loadCaveEnemy(choosenCave.getName());
+        //choosenEnemy.loadCaveEnemyVector(choosenCave.getName(), choosenEnemy); //IF USING ENEMY IN VECTOR
         std::string enemyName = choosenEnemy.getName();
         if (!enemyName.empty()){
             battleMethod(choosenEnemy);
@@ -214,6 +218,19 @@ public:
             //std::cout << "No enemy selected. Exiting fight menu." << std::endl;
             runGame = !gameMenu();
         }
+        closeDatabase(database);
+        return runGame;
+    }
+
+    bool shopMenu(){
+        bool runGame = true;
+        QSqlDatabase database;
+        openDatabase(database);
+
+        typeText("Welcome to the shop\n");
+        //std::cout << "Welcome to the shop" << std::endl;
+        choosenMove.loadMoves();
+
         closeDatabase(database);
         return runGame;
     }
@@ -247,17 +264,19 @@ public:
     bool gameMenu(){
         bool runGame = true;
         typeText("Your options are: \n");
-        typeText("1. Fight monsters.\n");
-        typeText("2. Get stats.\n");
+        typeText("1. Fight monsters\n");
+        typeText("2. Get stats\n");
         typeText("3. Enter a cave\n");
-        //typeText("4. Heal\n"); Removed for now could be nice to have later
-        typeText("0. Save and Exit.\n");
+        typeText("4. Go to the shop\n");
+        //typeText("5. Heal\n"); Removed for now could be nice to have later
+        typeText("0. Save and Exit\n");
         //std::cout << "Your options are: " << std::endl;
-        //std::cout << "1. Fight monsters." << std::endl;
-        //std::cout << "2. Get stats." << std::endl;
-        //std::cout << "3. Enter a cave." << std::endl;
-        //std::cout << "4. Heal" << std::endl;
-        //std::cout << "0. Exit." << std::endl;
+        //std::cout << "1. Fight monsters" << std::endl;
+        //std::cout << "2. Get stats" << std::endl;
+        //std::cout << "3. Enter a cave" << std::endl;
+        //std::cout << "4. Go to the shop" << std::endl;
+        //std::cout << "5. Heal" << std::endl;
+        //std::cout << "0. Exit" << std::endl;
 
         int choice = getMenuChoice();
         switch (choice) {
@@ -271,8 +290,11 @@ public:
         case 3:
             runGame = !loadDungeon();
             break;
+        case 4:
+            runGame = !shopMenu();
+            break;
             /*
-        case 4: //Function to heal
+        case 5: //Function to heal
             currentHero.heal();
             gameMenu();
             break;

@@ -10,7 +10,8 @@ add_executable(Portfoeljeprojekt main.cpp
         enemy.h
         datamanager.h
         game.h
-        cave.h)
+        cave.h
+        magic.h)
 
 target_link_libraries(Portfoeljeprojekt Qt5::Core Qt5::Quick Qt5::Sql)
 

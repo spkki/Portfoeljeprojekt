@@ -15,12 +15,13 @@ private:
     int _xpdrop;
     int _hp;
     int _ammount;
+    std::string _element;
     Hero currentHero;
 
 public:
     Enemy(){};
 
-    Enemy(std::string name, int hp, int damage, int xpdrop, int ammount = 1):_name(name), _damage(damage), _xpdrop(xpdrop), _hp(hp), _ammount(ammount){}
+    Enemy(std::string name, int hp, int damage, int xpdrop, int ammount = 1, std::string element = "Typeless"):_name(name), _damage(damage), _xpdrop(xpdrop), _hp(hp), _ammount(ammount), _element(element){}
 
     std::string getName(){
         return _name;
@@ -47,6 +48,14 @@ public:
         _ammount = ammount;
     }
 
+    std::string getElement(){
+        return _element;
+    }
+
+    void setElement(std::string element){
+        _element = element;
+    }
+
     void takeDamage(int damage){
         _hp -= damage;
         if (_hp > 0){
@@ -63,7 +72,7 @@ public:
         QSqlDatabase database;
         openDatabase (database);
         QSqlQuery query;
-        query.prepare("SELECT name, hp, damage, xpdrop FROM enemy");
+        query.prepare("SELECT name, hp, damage, xpdrop, element FROM enemy");
         if (query.exec()){
             currentHero.typeText("Avaliable enemies: \n");
             //std::cout << "Avaliable enemies: " << std::endl;
@@ -73,7 +82,8 @@ public:
                 int hp = query.value(1).toInt();
                 int damage = query.value(2).toInt();
                 int xpdrop = query.value(3).toInt();
-                std::cout << count << ". " << name << "(HP: " << hp << ", Damage: " << damage << ", XP Drop: " << xpdrop << ")" << std::endl; //Add other things into this statement
+                std::string element = query.value(4).toString().toStdString();
+                std::cout << count << ". " << name << "(HP: " << hp << ", Damage: " << damage << ", XP Drop: " << xpdrop << ", Element: " << element << ")" << std::endl; //Add other things into this statement
                 count++;
             }
             int choice;
@@ -87,6 +97,7 @@ public:
             _hp = query.value(1).toInt();
             _damage = query.value(2).toInt();
             _xpdrop = query.value(3).toInt();
+            _element = query.value(4).toString().toStdString();
         }
     }
 
@@ -95,7 +106,7 @@ public:
         openDatabase (database);
         QString _caveName = QString::fromStdString(caveName);
         QSqlQuery query;
-        query.prepare("SELECT enemy.name, enemy.hp, enemy.damage, enemy.xpdrop, cave_enemies.ammount FROM enemy JOIN cave_enemies ON enemy.id = cave_enemies.enemy_id JOIN caves ON cave_enemies.cave_id = caves.id WHERE caves.name = :name");
+        query.prepare("SELECT enemy.name, enemy.hp, enemy.damage, enemy.xpdrop, cave_enemies.ammount, enemy.element FROM enemy JOIN cave_enemies ON enemy.id = cave_enemies.enemy_id JOIN caves ON cave_enemies.cave_id = caves.id WHERE caves.name = :name");
         query.bindValue(":name", _caveName);
 
         if (query.exec()){
@@ -108,8 +119,9 @@ public:
                 int damage = query.value(2).toInt();
                 int xpdrop = query.value(3).toInt();
                 int ammount = query.value(4).toInt();
+                std::string element = query.value(5).toString().toStdString();
 
-                std::cout << count << ". " << name << " (HP: " << hp << ", Damage: " << damage << ", XP Drop: " << xpdrop << ", Ammount: " << ammount << ")" << std::endl; //Add other things into this statement
+                std::cout << count << ". " << name << " (HP: " << hp << ", Damage: " << damage << ", XP Drop: " << xpdrop << ", Ammount: " << ammount << ", Element: " << element << ")" << std::endl; //Add other things into this statement
                 count++;
             }
             int choice;
@@ -124,6 +136,7 @@ public:
             _damage = query.value(2).toInt();
             _xpdrop = query.value(3).toInt();
             _ammount = query.value(4).toInt();
+            _element = query.value(5).toString().toStdString();
         }
     }
 
@@ -134,7 +147,7 @@ public:
         openDatabase (database);
         QString _caveName = QString::fromStdString(caveName);
         QSqlQuery query;
-        query.prepare("SELECT enemy.name, enemy.hp, enemy.damage, enemy.xpdrop, cave_enemies.ammount FROM enemy JOIN cave_enemies ON enemy.id = cave_enemies.enemy_id JOIN caves ON cave_enemies.cave_id = caves.id WHERE caves.name = :name");
+        query.prepare("SELECT enemy.name, enemy.hp, enemy.damage, enemy.xpdrop, cave_enemies.ammount, enemy.element FROM enemy JOIN cave_enemies ON enemy.id = cave_enemies.enemy_id JOIN caves ON cave_enemies.cave_id = caves.id WHERE caves.name = :name");
         query.bindValue(":name", _caveName);
 
         if (query.exec()){
@@ -147,10 +160,11 @@ public:
                 int damage = query.value(2).toInt();
                 int xpdrop = query.value(3).toInt();
                 int ammount = query.value(4).toInt();
-                enemies.push_back(Enemy(name,hp,damage,xpdrop,ammount));
+                std::string element = query.value(5).toString().toStdString();
+                enemies.push_back(Enemy(name,hp,damage,xpdrop,ammount,element));
 
 
-                std::cout << count << ". " << name << " (HP: " << hp << ", Damage: " << damage << ", XP Drop: " << xpdrop << ", Ammount: " << ammount << ")" << std::endl; //Add other things into this statement
+                std::cout << count << ". " << name << " (HP: " << hp << ", Damage: " << damage << ", XP Drop: " << xpdrop << ", Ammount: " << ammount << ", Element: " << element << ")" << std::endl; //Add other things into this statement
                 count++;
             }
 
