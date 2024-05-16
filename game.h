@@ -41,6 +41,8 @@ public:
         currentHero = Hero(name);
         currentHero.getStats(name);
 
+        currentHero.saveHero();
+
         typeText("New character created and saved!\n");
         //std::cout << "New character created and saved!" << std::endl;
 
@@ -96,7 +98,7 @@ public:
         //std::cout << "Saving progress and exiting game..." << std::endl;
         QSqlDatabase database;
         openDatabase(database);
-        currentHero.deleteHero(currentHero.getName());
+        //currentHero.deleteHero(currentHero.getName());
         currentHero.saveHero();
         typeText("Progress has been saved succesfully!\n");
         //std::cout << "Progress has been saved succesfully!";
@@ -229,7 +231,7 @@ public:
 
         typeText("Welcome to the shop\n");
         //std::cout << "Welcome to the shop" << std::endl;
-        choosenMove.loadMoves();
+        choosenMove.puchaseMoves(currentHero.getId());
 
         closeDatabase(database);
         return runGame;
@@ -292,6 +294,7 @@ public:
             break;
         case 4:
             runGame = !shopMenu();
+            gameMenu();
             break;
             /*
         case 5: //Function to heal

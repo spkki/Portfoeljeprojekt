@@ -64,24 +64,25 @@ public:
         return _element;
     }
 
-    void loadMoves(){
+    void puchaseMoves(int hero_id){
         QSqlDatabase database;
         openDatabase (database);
         QSqlQuery query;
-        query.prepare("SELECT name, strength, selfdamage, manacost, element, goldcost FROM moves");
+        query.prepare("SELECT id, name, strength, selfdamage, manacost, element, goldcost FROM moves");
         if (query.exec()){
-            std::vector<std::tuple<std::string, int, int, int, std::string, int >> moves; //Loads each move into a vector
+            std::vector<std::tuple<int, std::string, int, int, int, std::string, int >> moves; //Loads each move into a vector
             typeText("Avaliable moves for purchase: \n");
             //std::cout << "Avaliable moves for purchase: " << std::endl;
             int count = 1;
             while (query.next()){
-                std::string name = query.value(0).toString().toStdString();
-                int strength = query.value(1).toInt();
-                int selfdamage = query.value(2).toInt();
-                int manacost = query.value(3).toInt();
-                std::string element = query.value(4).toString().toStdString();
-                int goldcost = query.value(5).toInt();
-                moves.emplace_back(name, strength, selfdamage, manacost, element, goldcost);
+                int id = query.value(0).toInt();
+                std::string name = query.value(1).toString().toStdString();
+                int strength = query.value(2).toInt();
+                int selfdamage = query.value(3).toInt();
+                int manacost = query.value(4).toInt();
+                std::string element = query.value(5).toString().toStdString();
+                int goldcost = query.value(6).toInt();
+                moves.emplace_back(id, name, strength, selfdamage, manacost, element, goldcost);
                 std::cout << count << ". " << name << "(Strength: " << strength << ", Selfdamage: " << selfdamage << ", Manacost: " << manacost << ", Element: " << element << ", Price: " << goldcost << ")" << std::endl; //Add other things into this statement
                 count++;
             }
@@ -91,14 +92,27 @@ public:
             std::cin >> choice;
 
             if(choice > 0 && choice <= moves.size()){
-                std::tuple<std::string, int, int, int, std::string, int> selectedMove = moves[choice-1];
-                _name = std::get <0>(selectedMove);
-                _strength = std::get <1>(selectedMove);
-                _selfdamage = std::get <2>(selectedMove);
-                _manacost = std::get <3>(selectedMove);
-                _element = std::get <4>(selectedMove);
-                _goldcost = std::get <5>(selectedMove);
+                auto selectedMove = moves[choice - 1];
+                int move_id = std::get <0>(selectedMove);
+                _name = std::get <1>(selectedMove);
+                _strength = std::get <2>(selectedMove);
+                _selfdamage = std::get <3>(selectedMove);
+                _manacost = std::get <4>(selectedMove);
+                _element = std::get <5>(selectedMove);
+                _goldcost = std::get <6>(selectedMove);
                 typeText("You have purchased: " + _name + "\n");
+
+                QSqlQuery moveQuery;
+                moveQuery.prepare("INSERT INTO hero_moves (hero_id, move_id) VALUES (:hero_id, :move_id)");
+                moveQuery.bindValue(":hero_id", hero_id);
+                moveQuery.bindValue(":move_id", move_id);
+
+                if(moveQuery.exec()){
+                    typeText("Move purchased succesfully.\n");
+                } else {
+                    typeText("Falied to purchase move.\n");
+                }
+
             } else {
                 typeText("Invalid choice. No move purchased.");
             }

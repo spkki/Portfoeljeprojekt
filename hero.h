@@ -16,6 +16,7 @@
 class Hero
 {
 private:
+    int _id;
     std::string _name;
     int _xp;
     int _level;
@@ -23,9 +24,11 @@ private:
     int _strength;
     int _gold;
     int _mana;
+    std::vector<int> _moveIDs;
 
 public:
     Hero(std::string name = "", int xp = 0, int level = 1, int hp = 10, int strength = 2, int gold = 0, int mana = 10){
+        _id = -1;
         _name = name;
         _xp = xp;
         _level = level;
@@ -33,6 +36,14 @@ public:
         _strength = strength;
         _gold = gold;
         _mana = mana;
+    }
+
+    void setId(int id){
+        _id = id;
+    }
+
+    int getId(){
+        return _id;
     }
 
     void setName(std::string nameinput){
@@ -122,6 +133,14 @@ public:
         return _mana;
     }
 
+    void addMove(int moveID){
+        _moveIDs.push_back(moveID);
+    }
+
+    std::vector<int> getMoveIDs(){
+        return _moveIDs;
+    }
+
     int getStats(std::string name){
         _name = name;
         printName();
@@ -180,11 +199,11 @@ public:
     }
 
     void loadHero(std::string heroname){
-        QString _heroname = QString::fromStdString(heroname);
         QSqlQuery query;
         query.prepare("SELECT * FROM hero WHERE name = :name");
-        query.bindValue(":name", _heroname);
+        query.bindValue(":name", QString::fromStdString(heroname));
         if(query.exec() && query.next()){
+            _id = query.value("id").toInt();
             _name = query.value("name").toString().toStdString();
             _xp = query.value("xp").toInt();
             _level = query.value("level").toInt();
@@ -193,6 +212,16 @@ public:
             _gold = query.value("gold").toInt();
             _mana = query.value("mana").toInt();
 
+            QSqlQuery moveQuery;
+            moveQuery.prepare("SELECT move_id FROM hero_moves WHERE hero_id = :hero_id");
+            moveQuery.bindValue(":hero_id", _id);
+            if (moveQuery.exec()){
+                _moveIDs.clear();
+                while (moveQuery.next()){
+                    _moveIDs.push_back(moveQuery.value(0).toInt());
+                }
+            }
+
             std::cout << "Hero loaded succesfully" << std::endl;
         } else {
             std::cout << "Hero could not load" << std::endl;
@@ -200,11 +229,14 @@ public:
     }
 
     void saveHero(){
-        QString name = QString::fromStdString(_name);
-
         QSqlQuery query;
-        query.prepare("INSERT INTO hero (name, xp, level, hp, strength, gold, mana) VALUES(:name, :xp, :level, :hp, :strength, :gold, :mana)");
-        query.bindValue(":name", name);
+        if (_id == -1){ //If new hero
+            query.prepare("INSERT INTO hero (name, xp, level, hp, strength, gold, mana) VALUES(:name, :xp, :level, :hp, :strength, :gold, :mana)");
+        } else { //If hero already exists
+            query.prepare("UPDATE hero SET xp = :xp, level = :level, hp = :hp, strength = :strength, gold = :gold, :mana = :mana WHERE id = :id");
+            query.bindValue(":id", _id);
+        }
+        query.bindValue(":name", QString::fromStdString(_name));
         query.bindValue(":xp", _xp);
         query.bindValue(":level", _level);
         query.bindValue(":hp", _hp);
@@ -216,6 +248,19 @@ public:
             qDebug() << "Falied to save character: " << query.lastError().text();
         }
         qDebug() << "Character saved succesfully!";
+
+        if (_id == -1){ //Only run if new character
+            _id = query.lastInsertId().toInt();
+        }
+
+        //Savning moves on hero
+        for (int moveID : _moveIDs){
+            QSqlQuery moveQuery;
+            moveQuery.prepare("INSERT INTO hero_moves (hero_id, move_id) VALUES (:hero_id, :move_id)");
+            moveQuery.bindValue(":hero_id", _id);
+            moveQuery.bindValue(":move_id", moveID);
+        }
+
     }
 
     void deleteHero(std::string _name){
