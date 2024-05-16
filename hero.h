@@ -4,6 +4,7 @@
 
 #pragma once
 #include "qsqlquery.h"
+#include "datamanager.h"
 #include <iostream>
 #include <QCoreApplication>
 #include <QDebug>
@@ -133,6 +134,17 @@ public:
         return _mana;
     }
 
+    void refreshMana(){
+        _mana = 8+ _level*2;
+    }
+
+    void deductMana(int manaCost){
+        _mana -= manaCost;
+        if (_mana < 0){
+            _mana = 0;
+        }
+    }
+
     void addMove(int moveID){
         _moveIDs.push_back(moveID);
     }
@@ -233,16 +245,17 @@ public:
         if (_id == -1){ //If new hero
             query.prepare("INSERT INTO hero (name, xp, level, hp, strength, gold, mana) VALUES(:name, :xp, :level, :hp, :strength, :gold, :mana)");
         } else { //If hero already exists
-            query.prepare("UPDATE hero SET xp = :xp, level = :level, hp = :hp, strength = :strength, gold = :gold, :mana = :mana WHERE id = :id");
+            query.prepare("UPDATE hero SET name = :name, xp = :xp, level = :level, hp = :hp, strength = :strength, gold = :gold, mana = :mana WHERE id = :id");
             query.bindValue(":id", _id);
         }
+
         query.bindValue(":name", QString::fromStdString(_name));
         query.bindValue(":xp", _xp);
         query.bindValue(":level", _level);
         query.bindValue(":hp", _hp);
         query.bindValue(":strength", _strength);
         query.bindValue(":gold", _gold);
-        query.bindValue(":mana,", _mana);
+        query.bindValue(":mana", _mana);
 
         if (!query.exec()){
             qDebug() << "Falied to save character: " << query.lastError().text();
@@ -255,13 +268,47 @@ public:
 
         //Savning moves on hero
         for (int moveID : _moveIDs){
-            QSqlQuery moveQuery;
-            moveQuery.prepare("INSERT INTO hero_moves (hero_id, move_id) VALUES (:hero_id, :move_id)");
-            moveQuery.bindValue(":hero_id", _id);
-            moveQuery.bindValue(":move_id", moveID);
+            QSqlQuery checkQuery;
+            checkQuery.prepare("SELECT COUNT(*) FROM hero_moves WHERE hero_id = :hero_id AND move_id = :move_id");
+            checkQuery.bindValue(":hero_id", _id);
+            checkQuery.bindValue(":move_id", moveID);
+            if (!checkQuery.exec()){
+                qDebug() << "Failed to check existing move: " << checkQuery.lastError().text();
+                continue;
+            }
+            checkQuery.next();
+            int count = checkQuery.value(0).toInt();
+            if(count == 0){
+                QSqlQuery moveQuery;
+                moveQuery.prepare("INSERT INTO hero_moves (hero_id, move_id) VALUES (:hero_id, :move_id)");
+                moveQuery.bindValue(":hero_id", _id);
+                moveQuery.bindValue(":move_id", moveID);
+                if (!moveQuery.exec()) {
+                    qDebug() << "Failed to save move: " << moveQuery.lastError().text();
+                }
+            }
         }
 
     }
+
+
+    /*void loadMoves(){ //May be redudent
+        QSqlDatabase database;
+        openDatabase(database);
+        QSqlQuery query;
+        query.prepare("SELECT move_id FROM hero_moves WHERE hero_id = :hero_id");
+        query.bindValue(":hero_id", _id);
+        if (query.exec()){
+            _moveIDs.clear();
+            while(query.next()){
+                _moveIDs.push_back(query.value(0).toInt());
+            }
+            typeText("Moves succesfully loaded.\n");
+        } else {
+            typeText("Moves could not load.\n");
+        }
+        closeDatabase(database);
+    }*/
 
     void deleteHero(std::string _name){
         QString name = QString::fromStdString(_name);

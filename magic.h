@@ -14,6 +14,7 @@
 class Magic
 {
 private:
+    int _id;
     std::string _name;
     int _strength;
     int _selfdamage;
@@ -30,6 +31,14 @@ public:
         _manacost = manacost;
         _element = element;
         _goldcost = goldcost;
+    }
+
+    void setName(std::string name){
+        _name = name;
+    }
+
+    std::string getName(){
+        return _name;
     }
 
     void setStrength(int strength){
@@ -107,6 +116,7 @@ public:
                 moveQuery.bindValue(":hero_id", hero_id);
                 moveQuery.bindValue(":move_id", move_id);
 
+
                 if(moveQuery.exec()){
                     typeText("Move purchased succesfully.\n");
                 } else {
@@ -119,6 +129,56 @@ public:
             closeDatabase (database);
         }
     }
+
+    void loadMagicBattle(int hero_id){
+        QSqlDatabase database;
+        openDatabase(database);
+        QSqlQuery query;
+        query.prepare(
+            "SELECT moves.id, moves.name, moves.strength, moves.selfdamage, moves.manacost, moves.element "
+            "FROM moves "
+            "JOIN hero_moves ON moves.id = hero_moves.move_id "
+            "WHERE hero_moves.hero_id = :hero_id"
+            );
+        query.bindValue(":hero_id", hero_id);
+
+        if(query.exec()){
+            std::cout << "Available Moves: " << std::endl;
+            int count = 1;
+            while(query.next()){
+                int id = query.value(0).toInt();
+                std::string name = query.value(1).toString().toStdString();
+                int strength = query.value(2).toInt();
+                int selfdamage = query.value(3).toInt();
+                int manacost = query.value(4).toInt();
+                std::string element = query.value(5).toString().toStdString();
+
+                std::cout << "(" << count << ") Move: " << name << " With: " << strength << " Strength, " << selfdamage << " Self-damage, " << manacost << " Manacost. It is: " << element << " Type " << std::endl;
+                count++;
+            }
+
+            int choice;
+            std::cout << "Pick a move: ";
+            std::cin >> choice;
+
+            // Reset the query to the first row
+            if (query.seek(choice - 1)) {
+                _id = query.value(0).toInt();
+                _name = query.value(1).toString().toStdString();
+                _strength = query.value(2).toInt();
+                _selfdamage = query.value(3).toInt();
+                _manacost = query.value(4).toInt();
+                _element = query.value(5).toString().toStdString();
+            } else {
+                std::cout << "Invalid choice." << std::endl;
+            }
+        } else {
+            qDebug() << "Failed to load player moves:" << query.lastError().text();
+        }
+
+        closeDatabase(database);
+    }
+
 
     void typeText(std::string text){
         for (std::size_t i=0; i<text.size(); i++)

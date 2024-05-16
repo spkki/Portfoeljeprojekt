@@ -68,6 +68,27 @@ public:
         }
     }
 
+    float typeChart[5][5] = {
+        //Fire, Earth, Metal, Water, Grass
+        { 1.0,  0.5,   2.0,   1.0,   1.0},  //Fire
+        { 1.0,  1.0,   0.5,   2.0,   1.0}, //Earth
+        { 1.0,  1.0,   1.0,   0.5,   2.0}, //Metal
+        { 2.0,  1.0,   1.0,   1.0,   0.5}, //Water
+        { 0.5,  2.0,   1.0,   1.0,   1.0}, //Grass
+    };
+
+    std::map<std::string, int> typeIndex = {
+        {"Fire", 0},
+        {"Earth", 1},
+        {"Metal", 2},
+        {"Water", 3},
+        {"Grass", 4},
+    };
+
+    float typeEffectiveness(const std::string& dmgType, const std::string& enemyType){
+        return typeChart[typeIndex[dmgType]][typeIndex[enemyType]];
+    }
+
     void loadEnemy(){
         QSqlDatabase database;
         openDatabase (database);

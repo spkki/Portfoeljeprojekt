@@ -50,7 +50,7 @@ public:
         return currentHero;
     }
 
-    void loadExistingCharacter(){
+   void loadExistingCharacter(){
         QSqlDatabase database;
         openDatabase(database);
 
@@ -93,6 +93,7 @@ public:
         closeDatabase(database);
     }
 
+
     void saveAndExit(){
         typeText("Saving progress and exiting game...\n");
         //std::cout << "Saving progress and exiting game..." << std::endl;
@@ -105,68 +106,37 @@ public:
         closeDatabase(database);
     }
 
+
     void battleSingle (Enemy& enemy){
+        QSqlDatabase database;
+        openDatabase(database);
         bool fightActive = true;
         while(fightActive){
+            choosenMove.loadMagicBattle(currentHero.getId());
             int input;
             typeText("Press '1' to attack: ");
             //std::cout << "Press '1' to attack: ";
             std::cin >> input;
+            int moveStrength = choosenMove.getStrength();
+            int moveManaCost = choosenMove.getManacost();
+            int moveSelfDamage = choosenMove.getSelfdamage();
+            std::string moveName = choosenMove.getName();
 
             switch(input){
             case 1:
-                typeText(currentHero.getName() + " attacked " + enemy.getName() + "\n");
-                //std::cout << currentHero.getName() << " attacked " << enemy.getName() << std::endl;
-                enemy.takeDamage(currentHero.dealDamage());
-                typeText(enemy.getName() + " attacked " + currentHero.getName() + "\n");
-                //std::cout << enemy.getName() <<" attacked " << currentHero.getName() << std::endl;
-                currentHero.takeDamage(enemy.dealDamage());
-                if(currentHero.getHp() <= 0){
-                    typeText("You have died!\n");
-                    //std::cout << "You have died!" << std::endl;
-                    currentHero.heal(); //Heals the player so the player can continue to play
-                    fightActive = false;
-                } else if(enemy.getHp() <= 0){
-                    typeText(enemy.getName() + " has died \n");
-                    //std::cout << enemy.getName() << " has died " << std::endl;
-                    currentHero.gainXp(enemy.getXpDrop());
-                    typeText(currentHero.getName() + " gained ");
-                    std::cout << enemy.getXpDrop();
-                    typeText("xp\n");
-                    //std::cout << currentHero.getName() << " gained " << enemy.getXpDrop() << "xp" << std::endl;
-                    currentHero.heal(); //Heals the player to maxhp MIGHT REMOVE LATER
-                    fightActive = false;
-                }
-                break;
+                if (currentHero.getMana() >= moveManaCost){
+                    typeText(currentHero.getName() + " attacked " + enemy.getName() + " using " + choosenMove.getName() + "!\n");
+                    currentHero.takeDamage(moveSelfDamage); //SELFDAMAGE HAS TO BE IMPLEMENTET WITH HEALTH MOVES
+                    currentHero.deductMana(moveManaCost);
+                    enemy.takeDamage(moveStrength*enemy.typeEffectiveness(choosenMove.getElement(),choosenEnemy.getElement()));
 
-            default:
-                typeText("Invalid choice try again!\n");
-                //std::cout << "Invalid choice try again!" << std::endl;
-
-            }
-        }
-    }
-
-    void battleMultiple (Enemy& enemy){
-        for (int i = 0; i < choosenEnemy.getAmmount(); ++i) {
-            bool fightActive = true;
-            while(fightActive){
-                int input;
-                typeText("Press '1' to attack: ");
-                //std::cout << "Press '1' to attack: ";
-                std::cin >> input;
-
-                switch(input){
-                case 1:
-                    typeText(currentHero.getName() + " attacked " + enemy.getName() + "\n");
-                    //std::cout << currentHero.getName() << " attacked " << enemy.getName() << std::endl;
-                    enemy.takeDamage(currentHero.dealDamage());
-                    typeText(enemy.getName() + " attacked " + currentHero.getName() + "\n");
-                    //std::cout << enemy.getName() <<" attacked " << currentHero.getName() << std::endl;
+                    typeText(enemy.getName() + " attacked " + currentHero.getName() + " and dealt " + std::to_string(enemy.dealDamage()) + "\n");
                     currentHero.takeDamage(enemy.dealDamage());
+                    //REMOVE MANA AND GIVE BACK AFTER BATTLE
                     if(currentHero.getHp() <= 0){
                         typeText("You have died!\n");
                         //std::cout << "You have died!" << std::endl;
+                        currentHero.refreshMana(); //Refreshes mana if dead
                         currentHero.heal(); //Heals the player so the player can continue to play
                         fightActive = false;
                     } else if(enemy.getHp() <= 0){
@@ -177,17 +147,73 @@ public:
                         std::cout << enemy.getXpDrop();
                         typeText("xp\n");
                         //std::cout << currentHero.getName() << " gained " << enemy.getXpDrop() << "xp" << std::endl;
-                        currentHero.heal(); //Heals the player to maxhp MIGHT REMOVE LATER
                         fightActive = false;
+                    }
+                } else {
+                    typeText("Not enough mana to use this move!\n");
+                }
+                break;
+
+            default:
+                typeText("Invalid choice try agian!\n");
+            }
+        }
+        closeDatabase(database);
+    }
+
+    void battleMultiple (Enemy& enemy){
+        QSqlDatabase database;
+        openDatabase(database);
+        for (int i = 0; i < choosenEnemy.getAmmount(); ++i) {
+            bool fightActive = true;
+            while(fightActive){
+                choosenMove.loadMagicBattle(currentHero.getId());
+                int input;
+                typeText("Press '1' to attack: ");
+                //std::cout << "Press '1' to attack: ";
+                std::cin >> input;
+                int moveStrength = choosenMove.getStrength();
+                int moveManaCost = choosenMove.getManacost();
+                int moveSelfDamage = choosenMove.getSelfdamage();
+                std::string moveName = choosenMove.getName();
+
+                switch(input){
+                case 1:
+                    if (currentHero.getMana() >= moveManaCost){
+                        typeText(currentHero.getName() + " attacked " + enemy.getName() + " using " + choosenMove.getName() + "!\n");
+                        currentHero.takeDamage(moveSelfDamage); //SELFDAMAGE HAS TO BE IMPLEMENTET WITH HEALTH MOVES
+                        currentHero.deductMana(moveManaCost);
+                        enemy.takeDamage(moveStrength*enemy.typeEffectiveness(choosenMove.getElement(),choosenEnemy.getElement()));
+
+                        typeText(enemy.getName() + " attacked " + currentHero.getName() + " and dealt " + std::to_string(enemy.dealDamage()) + "\n");
+                        currentHero.takeDamage(enemy.dealDamage());
+                        //REMOVE MANA AND GIVE BACK AFTER BATTLE
+                        if(currentHero.getHp() <= 0){
+                            typeText("You have died!\n");
+                            //std::cout << "You have died!" << std::endl;
+                            currentHero.refreshMana(); //Refreshes mana if dead
+                            currentHero.heal(); //Heals the player so the player can continue to play
+                            fightActive = false;
+                        } else if(enemy.getHp() <= 0){
+                            typeText(enemy.getName() + " has died \n");
+                            //std::cout << enemy.getName() << " has died " << std::endl;
+                            currentHero.gainXp(enemy.getXpDrop());
+                            typeText(currentHero.getName() + " gained ");
+                            std::cout << enemy.getXpDrop();
+                            typeText("xp\n");
+                            //std::cout << currentHero.getName() << " gained " << enemy.getXpDrop() << "xp" << std::endl;
+                            fightActive = false;
+                        }
+                    } else {
+                        typeText("Not enough mana to use this move!\n");
                     }
                     break;
 
                 default:
-                    typeText("Invalid choice try again!\n");
-                    //std::cout << "Invalid choice try again!" << std::endl;
-
+                    typeText("Invalid choice try agian!\n");
                 }
             }
+            closeDatabase(database);
         }
         }
 
@@ -270,7 +296,7 @@ public:
         typeText("2. Get stats\n");
         typeText("3. Enter a cave\n");
         typeText("4. Go to the shop\n");
-        //typeText("5. Heal\n"); Removed for now could be nice to have later
+        typeText("5. Heal and refresh mana\n");
         typeText("0. Save and Exit\n");
         //std::cout << "Your options are: " << std::endl;
         //std::cout << "1. Fight monsters" << std::endl;
@@ -296,12 +322,14 @@ public:
             runGame = !shopMenu();
             gameMenu();
             break;
-            /*
-        case 5: //Function to heal
+
+        case 5: //Function to heal and refresh mana
             currentHero.heal();
+            currentHero.refreshMana();
+            typeText("You have been healed and your mana has been refreshed!\n");
             gameMenu();
             break;
-*/
+
         case 0:
             saveAndExit();
             runGame = true;
