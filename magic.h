@@ -1,6 +1,7 @@
 #pragma ONCE
 #include "qsqlquery.h"
 #include "datamanager.h"
+#include "hero.h"
 #include <iostream>
 #include <QCoreApplication>
 #include <QDebug>
@@ -73,7 +74,21 @@ public:
         return _element;
     }
 
-    void puchaseMoves(int hero_id){
+    bool checkPrerequisites(int move_id, int hero_id) {
+        QSqlQuery query;
+        query.prepare("SELECT COUNT(*) FROM move_requirements WHERE move_id = :move_id AND requirement_id NOT IN (SELECT move_id FROM hero_moves WHERE hero_id = :hero_id)");
+        query.bindValue(":move_id", move_id);
+        query.bindValue(":hero_id", hero_id);
+
+        if (query.exec() && query.next()) {
+            int missingRequirementsCount = query.value(0).toInt();
+            return missingRequirementsCount == 0;
+        }
+
+        return false; // Error occurred or no result
+    }
+
+    void puchaseMoves(int hero_id, Hero& currentHero){
         QSqlDatabase database;
         openDatabase (database);
         QSqlQuery query;
@@ -91,10 +106,14 @@ public:
                 int manacost = query.value(4).toInt();
                 std::string element = query.value(5).toString().toStdString();
                 int goldcost = query.value(6).toInt();
-                moves.emplace_back(id, name, strength, selfdamage, manacost, element, goldcost);
-                std::cout << count << ". " << name << "(Strength: " << strength << ", Selfdamage: " << selfdamage << ", Manacost: " << manacost << ", Element: " << element << ", Price: " << goldcost << ")" << std::endl; //Add other things into this statement
-                count++;
+
+                if (!currentHero.hasMove(id) && checkPrerequisites(id, hero_id)) {
+                    moves.emplace_back(id, name, strength, selfdamage, manacost, element, goldcost);
+                    std::cout << count << ". " << name << " (Strength: " << strength << ", Selfdamage: " << selfdamage << ", Manacost: " << manacost << ", Element: " << element << ", Price: " << goldcost << ")" << std::endl;
+                    count++;
+                }
             }
+
             int choice;
             typeText("Which one would you like to purchase (Enter 0 to exit): ");
             //std::cout << "Which one would you like to purchase: ";
@@ -109,20 +128,25 @@ public:
                 _manacost = std::get <4>(selectedMove);
                 _element = std::get <5>(selectedMove);
                 _goldcost = std::get <6>(selectedMove);
-                typeText("You have purchased: " + _name + "\n");
 
-                QSqlQuery moveQuery;
-                moveQuery.prepare("INSERT INTO hero_moves (hero_id, move_id) VALUES (:hero_id, :move_id)");
-                moveQuery.bindValue(":hero_id", hero_id);
-                moveQuery.bindValue(":move_id", move_id);
+                if(_goldcost <= currentHero.getGold()){
+                    currentHero.setGold(- _goldcost);
 
+                    QSqlQuery moveQuery;
+                    moveQuery.prepare("INSERT INTO hero_moves (hero_id, move_id) VALUES (:hero_id, :move_id)");
+                    moveQuery.bindValue(":hero_id", hero_id);
+                    moveQuery.bindValue(":move_id", move_id);
 
-                if(moveQuery.exec()){
-                    typeText("Move purchased succesfully.\n");
+                    if(moveQuery.exec()){
+                        typeText("You have purchased: " + _name + "\n");
+                    } else {
+                        typeText("Falied to purchase move.\n");
+                        //If insuffecient fund refund
+                        currentHero.setGold(_goldcost);
+                    }
                 } else {
-                    typeText("Falied to purchase move.\n");
+                    typeText("Not enough gold to purchase this move. \n");
                 }
-
             } else {
                 typeText("Invalid choice. No move purchased.");
             }

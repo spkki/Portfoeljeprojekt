@@ -257,7 +257,7 @@ public:
 
         typeText("Welcome to the shop\n");
         //std::cout << "Welcome to the shop" << std::endl;
-        choosenMove.puchaseMoves(currentHero.getId());
+        choosenMove.puchaseMoves(currentHero.getId(),currentHero);
 
         closeDatabase(database);
         return runGame;

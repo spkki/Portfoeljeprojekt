@@ -66,9 +66,6 @@ public:
     }
 
     int getXp(){
-        typeText("XP: ");
-        std::cout << _xp << std::endl;
-        //std::cout << "xp: " << _xp << std::endl;
         return _xp;
     }
 
@@ -78,9 +75,6 @@ public:
 
     int getLevel()
     {
-        typeText("Level: ");
-        std::cout << _level << std::endl;
-        //std::cout << "Level: " << _level << std::endl;
         return _level;
     }
 
@@ -108,9 +102,6 @@ public:
     }
 
     int getStrength(){
-        typeText("Strength: ");
-        std::cout << _strength << std::endl;
-        //std::cout << "Strength: " << _strength << std::endl;
         return _strength;
     }
 
@@ -119,8 +110,8 @@ public:
     }
 
     int getGold(){
-        typeText("Gold: ");
-        std::cout << _gold << std::endl;
+        //typeText("Gold: ");
+        //std::cout << _gold << std::endl;
         return _gold;
     }
 
@@ -129,8 +120,6 @@ public:
     }
 
     int getMana(){
-        typeText("Mana: ");
-        std::cout << _mana << std::endl;
         return _mana;
     }
 
@@ -153,26 +142,47 @@ public:
         return _moveIDs;
     }
 
+    bool hasMove(int move_id) const {
+        for (int id : _moveIDs) {
+            if (id == move_id) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     int getStats(std::string name){
         _name = name;
         printName();
-        getLevel();
-        getXp();
-        getHpStats();
-        getStrength();
-        getGold();
-        getMana();
+        typeText("Level: ");
+        std::cout << _level << std::endl;
+        typeText("XP: ");
+        std::cout << _xp << std::endl;
+        typeText("HP: ");
+        std::cout << _hp << std::endl;
+        typeText("Strength: ");
+        std::cout << _strength << std::endl;
+        typeText("Gold: ");
+        std::cout << _gold << std::endl;
+        typeText("Mana: ");
+        std::cout << _mana << std::endl;
         return 0;
     }
 
     int getStats(){
         printName();
-        getLevel();
-        getXp();
-        getHpStats();
-        getStrength();
-        getGold();
-        getMana();
+        typeText("Level: ");
+        std::cout << _level << std::endl;
+        typeText("XP: ");
+        std::cout << _xp << std::endl;
+        typeText("HP: ");
+        std::cout << _hp << std::endl;
+        typeText("Strength: ");
+        std::cout << _strength << std::endl;
+        typeText("Gold: ");
+        std::cout << _gold << std::endl;
+        typeText("Mana: ");
+        std::cout << _mana << std::endl;
         return 0;
     }
 
